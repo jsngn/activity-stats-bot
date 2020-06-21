@@ -1,3 +1,5 @@
-config.py
+pyconfig.py
 .idea/
 __pycache__/
+./db/config.js
+./db/node_modules/
