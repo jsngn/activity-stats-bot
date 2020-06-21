@@ -1,5 +1,5 @@
 pyconfig.py
 .idea/
 __pycache__/
-./db/config.js
-./db/node_modules/
+db/config.js
+db/node_modules/
