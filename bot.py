@@ -21,14 +21,18 @@ def run_bot(reddit):
                     try:
                         reddit.redditor(comment_arr[1]).id
                         extractor = Extractor(reddit, comment_arr[1])
-                        if comment_arr[2] in extractor.activity_action and comment_arr[3] in extractor.mode_action:
+                        print(comment_arr[2])
+                        print(comment_arr[3])
+                        if comment_arr[2] in extractor.activity_action and comment_arr[3] in Statics.CORRESPOND_MODE[comment_arr[2]]:
                             results = extractor.extract(comment_arr[2], comment_arr[3])  # Dictionary
                             results_sorted = sorted(((value, key) for key, value in results.items()), reverse=True)
-                            cmt = f"{comment_arr[2]}'s {comment_arr[3]} of {comment_arr[1]}:\n\n"
+                            cmt = format_comment(comment_arr[1], comment_arr[2], comment_arr[3])
+                            unit = get_unit(comment_arr[2], comment_arr[3])
+
                             i = 0
                             for count, item in results_sorted:
                                 if i < Statics.STATS_LIMIT and i < len(results_sorted):
-                                    cmt += f"{item}: {count}\n\n"
+                                    cmt += f"{item}: {count} {unit}\n\n"
                                     i += 1
                                 else:
                                     break
@@ -67,6 +71,31 @@ def add_comment(id):
         print("DB ERROR: " + resp.json()["error"])
     else:
         print("DB SUCCESS: Added comment ID to DB")
+
+
+def format_comment(user, activity, mode):
+    if mode == Statics.SUBREDDIT_KW:
+        return f"{user}'s {activity} most commonly appear in these subreddits:\n\n"
+    elif mode == Statics.AWARD_COUNT_KW:
+        return f"{user} received most awards on these {activity}:\n\n"
+    elif mode == Statics.AWARD_FREQ_KW:
+        return f"{user} received these awards most commonly on their {activity}:\n\n"
+    else:
+        return Statics.FORMAT_ERROR + " Results below may not be meaningful.\n\n"
+
+
+def get_unit(activity, mode):
+    if mode == Statics.AWARD_COUNT_KW or mode == Statics.AWARD_FREQ_KW:
+        return "awards"
+    elif mode == Statics.SUBREDDIT_KW:
+        if activity == Statics.UPVOTES_KW:
+            return "upvotes"
+        elif activity == Statics.COMMENTS_KW:
+            return "comments"
+        elif activity == Statics.SUBMISSIONS_KW:
+            return "submissions"
+
+    return ""
 
 
 if __name__ == '__main__':
