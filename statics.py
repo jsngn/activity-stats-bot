@@ -16,8 +16,6 @@ class Statics:
     FORMAT_ERROR = "Whoops - that's the incorrect comment format! Please do: '!activitystatsbot username [('upvotes' " \
                    "'subreddit') | (('comments'|'submissions') ('awardcount'|'awardfreq'|'subreddit'))]' "
     USERNAME_ERROR = "Whoops - this user doesn't appear to exist!"
-    ACTIVITY_ERROR = "Whoops - after username, please specify 'upvotes', 'comments', or 'submissions' then whether " \
-                     "you want to view 'awardcount', 'awardfreq', or 'subreddit' stats! See docs for more."
 
     COMMENT_WORD_NO = 4
     STATS_LIMIT = 5

@@ -8,7 +8,7 @@ import time
 
 
 def run_bot(reddit):
-    for comment in reddit.subreddit("test").comments(limit=1000):
+    for comment in reddit.subreddit("PPeachTesting").comments(limit=1000):
         if Statics.ERROR_KW not in comment.body and Statics.BOT_KW in comment.body:  # Bot summoned
             print(f"Bot summoned for {comment.id}")
             if not has_replied(comment.id):
@@ -36,12 +36,12 @@ def run_bot(reddit):
                                     i += 1
                                 else:
                                     break
-                            # comment.reply(cmt)
+                            comment.reply(cmt)
                             print(comment.id)
                             add_comment(comment.id)
                             print(cmt)
                         else:
-                            comment.reply(Statics.ACTIVITY_ERROR)
+                            comment.reply(Statics.FORMAT_ERROR)
                             add_comment(comment.id)
                     except prawcore.exceptions.NotFound:
                         comment.reply(Statics.USERNAME_ERROR)

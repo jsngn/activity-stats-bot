@@ -1,4 +1,5 @@
 from statics import Statics
+import pprint
 
 
 class Extractor:
@@ -42,10 +43,12 @@ class Extractor:
     def get_award_count_from_list(self, listing):
         counts = {}
         for item in listing:
-            if str(item.permalink) not in counts:
-                counts[str(item.permalink)] = 0
+            pprint.pprint(vars(item))
+            url = "https://reddit.com" + str(item.permalink)
+            if url not in counts:
+                counts[url] = 0
             for award in item.all_awardings:
-                counts[str(item.permalink)] += award["count"]
+                counts[url] += award["count"]
 
         # for count in counts:
         #     print(count + " " + str(counts[count]))
