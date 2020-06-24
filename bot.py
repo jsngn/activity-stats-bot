@@ -13,7 +13,7 @@ def run_bot(reddit):
         Takes params:
         reddit: instance of praw.Reddit """
 
-    for comment in reddit.subreddit("PPeachTesting").comments(limit=1000):
+    for comment in reddit.subreddit(pyconfig.subreddit).comments(limit=1000):
         if Statics.ERROR_KW not in comment.body and Statics.BOT_KW in comment.body:  # Bot summoned
             print(f"Bot summoned for {comment.id}")
             if not has_replied(comment.id):  # Don't repeatedly reply to a comment
