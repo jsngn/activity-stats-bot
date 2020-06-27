@@ -1,3 +1,6 @@
+// API for bot.py to communicate with db of comment IDs which bot has replied to
+// Request handling by Josephine Nguyen, 2020
+
 var express=require('express');
 let mysql = require('mysql');
 const bodyParser = require('body-parser');
@@ -25,10 +28,11 @@ app.use(bodyParser.json());
 var router = express.Router();
 
 router.use(function (req,res,next) {
-	console.log("/" + req.method);
+	console.log("/" + req.method); // Log request verb
 	next();
 });
 
+// Get count of rows in db for a comment ID, for checking whether bot has replied to comment
 router.get("/comments/search/:id", function(req, res){
 	global.connection.query('SELECT COUNT(*) FROM comments WHERE CommentID = ?', [req.params.id], function(error, results, fields){
 		if (error) {
@@ -39,6 +43,7 @@ router.get("/comments/search/:id", function(req, res){
 	});
 });
 
+// Add comment ID to db, id must be in body of request
 router.post("/comments/add/", function(req, res){
 	global.connection.query('INSERT INTO comments(CommentID) VALUES(?)', [req.body.id], function(error, results, fields){
 		if (error) {

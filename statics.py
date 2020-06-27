@@ -1,3 +1,6 @@
+""" Josephine Nguyen, 2020 """
+
+
 class Statics:
     """ Class with constant values across project """
 
@@ -29,4 +32,3 @@ class Statics:
     USERNAME_ERROR = "Whoops - this user doesn't appear to exist!"
 
     COMMENT_WORD_NO = 4  # Num of words in a good summon (still need more verification)
-    STATS_LIMIT = 5  # Max number of subreddits/comments/submissions to display stats for in comment

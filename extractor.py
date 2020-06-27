@@ -1,3 +1,5 @@
+""" Josephine Nguyen, 2020 """
+
 from statics import Statics
 import pprint
 

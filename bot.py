@@ -1,3 +1,5 @@
+""" Josephine Nguyen, 2020 """
+
 import praw
 import prawcore.exceptions
 import pyconfig
@@ -47,7 +49,7 @@ def run_bot(reddit):
                             # Don't display too many subreddits/comments/submissions
                             i = 0
                             for count, item in results_sorted:
-                                if i < Statics.STATS_LIMIT and i < len(results_sorted):
+                                if i < pyconfig.stats_limit and i < len(results_sorted):
                                     cmt += f"{item}: {count} {unit}\n\n"
                                     i += 1
                                 else:
@@ -76,6 +78,7 @@ def has_replied(id):
 
     resp = requests.get(f"http://localhost:3000/comments/search/{id}")
     if resp.json()["status"] != 200:
+        print("DB ERROR: " + str(resp.json()["error"]) + ". Bot will skip this comment.")
         return True  # We don't know if comment already replied to, so be safe and don't reply to it
     if resp.json()["response"]:
         if resp.json()["response"][0]["COUNT(*)"]:  # If replied already
