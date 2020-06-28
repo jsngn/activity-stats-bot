@@ -1,4 +1,4 @@
-# activisualizer
+# activity-stats-bot
 Activity stats bot for Reddit
 
 ## Description
