@@ -26,8 +26,8 @@ class Statics:
                        SUBMISSIONS_KW: {SUBREDDIT_KW: None, AWARD_COUNT_KW: None, AWARD_FREQ_KW: None}}
 
     # Error message if formatting of summon is wrong (BOT_KW still must be correct)
-    FORMAT_ERROR = "Whoops - that's the incorrect comment format! Please do: '!activitystatsbot username [('upvotes' " \
-                   "'subreddit') | (('comments'|'submissions') ('awardcount'|'awardfreq'|'subreddit'))]' "
+    FORMAT_ERROR = "Whoops - that's the incorrect comment format! Please do: '!activitystatsbot <username> ((upvotes " \
+                   "subreddit) | ((comments|submissions) (awardcount|awardfreq|subreddit)))'"
     # User doesn't exist
     USERNAME_ERROR = "Whoops - this user doesn't appear to exist!"
     # Message for forbidden exception from praw

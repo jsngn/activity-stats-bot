@@ -1,4 +1,6 @@
-""" Josephine Nguyen, 2020 """
+""" Script to run activity stats bot
+    Here is where we start connections to Reddit and our own APIs and reply to summons
+    Josephine Nguyen, 2020 """
 
 import praw
 import prawcore.exceptions
@@ -13,15 +15,16 @@ def run_bot(reddit, replied_ids):
     """ Gets 1000 comments in subreddit, checks whether bot is summoned, if yes then verify good formatting to display
         stats or error message (as reply to comment with summon)
         Takes params:
-        reddit: instance of praw.Reddit """
+        reddit: instance of praw.Reddit
+        replied_ids: dictionary of comment IDs recently confirmed that we've replied """
 
     for comment in reddit.subreddit(pyconfig.subreddit).comments(limit=1000):
 
         if Statics.ERROR_KW not in comment.body and Statics.BOT_KW in comment.body:  # Bot summoned
-            print(f"Bot summoned for {comment.id}")
+            print(f"{comment.id}: Bot summoned")
 
             if comment.id not in replied_ids:
-                print(f"Querying database for {comment.id}")
+                print(f"{comment.id}: Querying database for ID")
                 reply_status = has_replied(comment.id)
 
                 if not reply_status:  # Don't repeatedly reply to a comment
@@ -36,8 +39,6 @@ def run_bot(reddit, replied_ids):
                             reddit.redditor(comment_arr[1]).id  # Throws exception if non-existent user, we comment err
 
                             extractor = Extractor(reddit, comment_arr[1])
-                            print(comment_arr[2])
-                            print(comment_arr[3])
 
                             # Ensure good formatting e.g. one of 'upvotes', 'comments', 'submissions' must be present
                             # or can't do 'upvotes awardcount'
@@ -47,7 +48,7 @@ def run_bot(reddit, replied_ids):
 
                                 # Log and reply to summon (if applicable) then move onto next comment
                                 if Statics.EXCEPTION_KW in results:
-                                    print(f"Error extracting stats for {comment.id}: {results[Statics.EXCEPTION_KW]}")
+                                    print(f"{comment.id}: Error extracting stats: {results[Statics.EXCEPTION_KW]}")
 
                                     if type(results[Statics.EXCEPTION_KW]) is prawcore.exceptions.Forbidden:
                                         reply_handler(comment, Statics.PRIVATE_ERROR, replied_ids)
@@ -70,19 +71,17 @@ def run_bot(reddit, replied_ids):
                                     else:
                                         break
                                 reply_handler(comment, cmt, replied_ids)
-                                print(comment.id)
-                                print(cmt)
                             else:
                                 reply_handler(comment, Statics.FORMAT_ERROR, replied_ids)
                         except prawcore.exceptions.NotFound:
                             reply_handler(comment, Statics.USERNAME_ERROR, replied_ids)
                 elif reply_status == 1:
                     replied_ids[comment.id] = None
-                    print(f"Already replied to comment ID {comment.id}")
+                    print(f"{comment.id}: Already replied to comment")
                 else:
-                    print("DB error (see log lines immediately above)")
+                    print(f"{comment.id}: DB error (see log lines immediately above)")
             else:
-                print(f"Already queried database for {comment.id}")
+                print(f"{comment.id}: Already queried database for comment")
     time.sleep(10)
 
 
@@ -95,7 +94,7 @@ def has_replied(id):
 
     resp = requests.get(f"http://localhost:3000/comments/search/{id}")
     if resp.json()["status"] != 200:
-        print("DB ERROR: " + str(resp.json()["error"]) + ". Bot will skip this comment.")
+        print(f"{id}: DB error: " + str(resp.json()["error"]) + ". Bot will skip this comment.")
         return 2
     if resp.json()["response"]:
         if resp.json()["response"][0]["COUNT(*)"]:  # If replied already
@@ -115,10 +114,10 @@ def add_comment(id):
 
     resp = requests.post("http://localhost:3000/comments/add/", data={"id": id})
     if resp.json()["status"] != 200:  # Something went wrong
-        print("DB FAILURE: Could not add comment ID to DB; bot may try to reply to this comment again")
-        print("DB ERROR: " + resp.json()["error"])
+        print(f"{id}: DB failure: Could not add comment ID to DB; bot may try to reply to this comment again")
+        print(f"{id}: DB error: " + resp.json()["error"])
     else:
-        print("DB SUCCESS: Added comment ID to DB")
+        print(f"{id}: DB success: Added comment ID to DB")
 
 
 def format_comment(user, activity, mode):
@@ -176,7 +175,7 @@ def reply_handler(comment, reply, replied_ids):
         add_comment(comment.id)
         replied_ids[comment.id] = None
     except Exception as e:
-        print(f"Error while replying or writing to DB: {e}")
+        print(f"{comment.id}: Error while replying or writing to DB: {e}")
 
 
 if __name__ == '__main__':
