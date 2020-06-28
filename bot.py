@@ -45,6 +45,15 @@ def run_bot(reddit, replied_ids):
                                     and comment_arr[3] in Statics.CORRESPOND_MODE[comment_arr[2]]:
                                 results = extractor.extract(comment_arr[2], comment_arr[3])  # Dictionary returned
 
+                                # Log and reply to summon (if applicable) then move onto next comment
+                                if Statics.EXCEPTION_KW in results:
+                                    print(f"Error extracting stats for {comment.id}: {results[Statics.EXCEPTION_KW]}")
+
+                                    if type(results[Statics.EXCEPTION_KW]) is prawcore.exceptions.Forbidden:
+                                        reply_handler(comment, Statics.PRIVATE_ERROR, replied_ids)
+                                    continue
+
+                                # No exceptions thrown from extractor, proceed normally
                                 # Sort so we only display highest stats
                                 results_sorted = sorted(((value, key) for key, value in results.items()), reverse=True)
 
@@ -175,6 +184,9 @@ if __name__ == '__main__':
                          client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by /u/swinii")
     print("PRAW Reddit instance ready.")
 
+    # Dictionary of comment IDs in the 1000 comments retrieved from subreddit that we know we've replied by sending GET
+    # to API. This means program won't repeatedly try to send get requests to API to confirm the same information we
+    # should already know
     replied_ids = {}
 
     while True:  # Run until interrupted

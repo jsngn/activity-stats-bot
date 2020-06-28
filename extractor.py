@@ -28,11 +28,16 @@ class Extractor:
         """ All summons, regardless of specified activity and mode call this function
             Takes params:
             activity: string indicating activity type
-            mode: string indicating mode of stats """
+            mode: string indicating mode of stats
 
-        listing = self.activity_action[activity]()
-        # print(type(listing))
-        return self.mode_action[mode](listing)  # Extracted info
+            Returns dictionary of stats or error message"""
+
+        try:
+            listing = self.activity_action[activity]()
+            # print(type(listing))
+            return self.mode_action[mode](listing)  # Extracted info
+        except Exception as e:
+            return {Statics.EXCEPTION_KW: e}  # To help with logs and reply
 
     def get_upvotes_stats(self):
         """ Make get request to server to query posts upvoted by username, return result (type praw's Listing) """

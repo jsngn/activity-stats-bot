@@ -30,5 +30,10 @@ class Statics:
                    "'subreddit') | (('comments'|'submissions') ('awardcount'|'awardfreq'|'subreddit'))]' "
     # User doesn't exist
     USERNAME_ERROR = "Whoops - this user doesn't appear to exist!"
+    # Message for forbidden exception from praw
+    PRIVATE_ERROR = "Whoops - this user didn't make the required details publicly available. Likely their upvotes " \
+                    "are not public. If you're querying yourself, please visit Old Reddit to make your upvotes info " \
+                    "public first!"
 
     COMMENT_WORD_NO = 4  # Num of words in a good summon (still need more verification)
+    EXCEPTION_KW = "error"  # For passing around exception details internally
