@@ -54,6 +54,8 @@ def run_bot(reddit, replied_ids):
                                         reply_handler(comment, Statics.PRIVATE_ERROR, replied_ids)
                                     continue
 
+                                results = results[comment_arr[2] + "_" + comment_arr[3]]
+
                                 # No exceptions thrown from extractor, proceed normally
                                 # Sort so we only display highest stats
                                 results_sorted = sorted(((value, key) for key, value in results.items()), reverse=True)

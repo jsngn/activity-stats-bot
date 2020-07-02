@@ -33,9 +33,12 @@ class Extractor:
             Returns dictionary of stats or error message"""
 
         try:
+            res = {}
             listing = self.activity_action[activity]()
             # print(type(listing))
-            return self.mode_action[mode](listing)  # Extracted info
+            res[activity + "_" + mode] = self.mode_action[mode](listing)  # Extracted info
+
+            return res
         except Exception as e:
             return {Statics.EXCEPTION_KW: e}  # To help with logs and reply
 
