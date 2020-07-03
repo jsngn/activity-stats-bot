@@ -3,7 +3,7 @@
 
 import pytest
 from unittest.mock import sentinel
-import re
+from urllib.parse import urlparse
 
 import praw
 import pyconfig
@@ -64,37 +64,30 @@ def test_get_from_list(ext):
     """ Call function to test type of dictionary response and its key-value pair types, also tests that only 1 of the
         functions return URL as keys """
 
-    url_regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    res = ext.get_subreddit_count_from_list(ext.get_upvotes_stats())
+    check_get_from_list_content(res)
+    for url in res:
+        assert urlparse(url).netloc == ""  # not URL
 
-    res = check_get_from_list_content(ext.get_subreddit_count_from_list(ext.get_upvotes_stats()))
-    for key in res:
-        assert re.match(url_regex, key) is None  # not URL
+    res = ext.get_award_freqs_from_list(ext.get_submissions_stats())
+    check_get_from_list_content(res)
+    for url in res:
+        assert urlparse(url).netloc == ""
 
-    res = check_get_from_list_content(ext.get_award_freqs_from_list(ext.get_submissions_stats()))
-    for key in res:
-        assert re.match(url_regex, key) is None
-
-    res = check_get_from_list_content(ext.get_award_count_from_list(ext.get_submissions_stats()))
-    for key in res:
-        assert re.match(url_regex, key) is not None  # is URL
+    res = ext.get_award_count_from_list(ext.get_submissions_stats())
+    check_get_from_list_content(res)
+    for url in res:
+        assert urlparse(url).netloc != ""  # is URL
 
 
-def check_get_from_list_content(ext_function):
+def check_get_from_list_content(res):
     """ Test that each get_x_from_list() return value is right type, including keys and values """
 
-    res = ext_function
     assert type(res) is dict
     if res.keys():
         assert set(map(type, res.keys())) == {str}
     if res.values():
         assert set(map(type, res.values())) == {int}
-    return res
 
 
 def test_extract(ext):
