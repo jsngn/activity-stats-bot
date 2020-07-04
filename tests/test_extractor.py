@@ -2,21 +2,18 @@
     Josephine Nguyen, 2020 """
 
 import pytest
-from unittest.mock import sentinel
+from unittest.mock import sentinel, MagicMock
 from urllib.parse import urlparse
 
-import praw
-import pyconfig
 from extractor import Extractor
 from statics import Statics
 
 
 @pytest.fixture
 def red():
-    """ Fixture of valid praw.Reddit instance """
+    """ Fixture of mock Reddit instance """
 
-    return praw.Reddit(username=pyconfig.username, password=pyconfig.password, client_id=pyconfig.client_id,
-                       client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by /u/swinii")
+    return sentinel.Reddit
 
 
 @pytest.fixture
@@ -35,10 +32,10 @@ def ext(red, usr):
     return Extractor(reddit, username)
 
 
-def test_extractor_constructor(ext, usr):
+def test_extractor_constructor(red, ext, usr):
     """ Test attributes of extractor """
 
-    assert type(ext.reddit) is praw.Reddit
+    assert ext.reddit is red
     assert ext.username == usr
     assert type(ext.activity_action) is dict and type(ext.mode_action) is dict
     assert len(ext.activity_action) == len(ext.activity_action) == 3
@@ -52,15 +49,18 @@ def test_extractor_constructor(ext, usr):
     assert ext.mode_action[Statics.AWARD_FREQ_KW] == ext.get_award_freqs_from_list
 
 
-def test_get_calls(ext):
-    """ Test that all GET calls succeed and return a praw Listing object, not NoneType """
+def test_get_calls(red, ext):
+    """ Test that all GET requests return expected value """
 
-    assert type(ext.get_upvotes_stats()) is praw.reddit.models.Listing
-    assert type(ext.get_submissions_stats()) is praw.reddit.models.Listing
-    assert type(ext.get_comments_stats()) is praw.reddit.models.Listing
+    listing = sentinel.Listing
+    red.get = MagicMock(return_value=listing)
+
+    assert ext.get_upvotes_stats() is listing and red.get.called
+    assert ext.get_submissions_stats() is listing and red.get.called
+    assert ext.get_comments_stats() is listing and red.get.called
 
 
-def test_get_from_list(ext):
+def test_get_from_list(red, ext):
     """ Call function to test type of dictionary response and its key-value pair types, also tests that only 1 of the
         functions return URL as keys """
 
