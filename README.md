@@ -6,8 +6,6 @@ A summon-able bot that comments a user's upvote/comment/submission stats taken f
 
 By default, the bot only comments the stats for 5 upvotes/comments/submissions with the highest stats (see [Format explanation](https://github.com/jsngn/activity-stats-bot#format-explanation)), but you can configure this.
 
-Feel free to check out the [bot's test comments](https://www.reddit.com/user/ActivityStatsBot/comments/). Note that the earlier comments don't reflect what the bot does, so don't scroll too far down.
-
 ## Dependencies
 1. [Python 3.8](https://www.python.org/downloads/)
 
@@ -24,11 +22,13 @@ Feel free to check out the [bot's test comments](https://www.reddit.com/user/Act
 
 3. Edit other configurations in pyconfig.py if necessary. Feel free to change it at any point later on, too.
 
-4. Run create_bot_schema.sql (in ./db/) using command line or MySQL Workbench.
+4. Start MySQL server (on localhost or otherwise) if not already running.
 
-5. In this (root) directory: `cd db` then `npm install` (if first time running) then `nodemon api.js [env]` (every time you run bot).
+5. Run create_bot_schema.sql (in ./db/) using command line or MySQL Workbench.
 
-6. Finally run the bot: `python3 bot.py` in this (root) directory.
+6. In this (root) directory: `cd db` then edit config.js (see [instructions](https://github.com/jsngn/activity-stats-bot/tree/master/db#instructions)), `npm install` (if first time running), then `nodemon api.js [<env>]` (every time you run bot).
+
+7. Finally, run the bot: `python3 bot.py` in this (root) directory.
 
 ## Summon format
 `!activitystatsbot <username> ((upvotes subreddit) | ((comments|submissions) (awardcount|awardfreq|subreddit)))`
