@@ -84,7 +84,7 @@ def run_bot(reddit, replied_ids):
                     print(f"{comment.id}: DB error (see log lines immediately above)")
             else:
                 print(f"{comment.id}: Already queried database for comment")
-    time.sleep(10)
+    time.sleep(pyconfig.fetch_interval)
 
 
 def has_replied(id):

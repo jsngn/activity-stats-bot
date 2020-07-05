@@ -1,4 +1,4 @@
-""" Testing for extractor.py (Extractor class)
+""" Unit testing for extractor.py (Extractor class)
     Josephine Nguyen, 2020 """
 
 import pytest
