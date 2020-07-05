@@ -6,6 +6,8 @@ A summon-able bot that comments a user's upvote/comment/submission stats taken f
 
 By default, the bot only comments the stats for 5 upvotes/comments/submissions with the highest stats (see [Format explanation](https://github.com/jsngn/activity-stats-bot#format-explanation)), but you can configure this.
 
+Feel free to check out the [bot's test comments](https://www.reddit.com/user/ActivityStatsBot/comments/). Note that the earlier comments don't reflect what the bot does, so don't scroll too far down.
+
 ## Dependencies
 1. [Python 3.8](https://www.python.org/downloads/)
 
