@@ -182,7 +182,8 @@ def reply_handler(comment, reply, replied_ids):
 
 if __name__ == '__main__':
     reddit = praw.Reddit(username=pyconfig.username, password=pyconfig.password, client_id=pyconfig.client_id,
-                         client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by /u/swinii")
+                         client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by jsngn on "
+                                                                          "GitHub")
     print("PRAW Reddit instance ready.")
 
     # Dictionary of comment IDs in the 1000 comments retrieved from subreddit that we know we've replied by sending GET

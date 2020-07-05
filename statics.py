@@ -18,7 +18,8 @@ class Statics:
     AWARD_FREQ_KW = "awardfreq"
 
     # Detect error message (one error message has BOT_KW so need this to not reply to error messages)
-    ERROR_KW = "Whoops"
+    # Has a space and symbol character to avoid confusion with a comment that wants stats for user "whoops"
+    ERROR_KW = "Whoops -"
 
     # Ensure bad user request e.g. "upvotes award_count" not allowed
     CORRESPOND_MODE = {UPVOTES_KW: {SUBREDDIT_KW: None},
