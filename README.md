@@ -6,6 +6,28 @@ A summon-able bot that comments a user's upvote/comment/submission stats taken f
 
 By default, the bot only comments the stats for 5 upvotes/comments/submissions with the highest stats (see [Format explanation](https://github.com/jsngn/activity-stats-bot#format-explanation)), but you can configure this.
 
+## Dependencies
+1. [Python 3.8](https://www.python.org/downloads/)
+
+2. [praw](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
+
+3. [MySQL](https://dev.mysql.com/downloads/mysql/)
+
+4. [Node.JS](https://nodejs.org/en/download/)
+
+## Run this bot
+1. Create an app [here](https://www.reddit.com/prefs/apps/) using your bot's account. Importantly, fill in name (whatever you want), type (Script), redirect uri (http://localhost:8080).
+
+2. Edit pyconfig.py to specify your bot's account username & password, subreddit where bot will run, client ID and secret from the page where you just created your app.
+
+3. Edit other configurations in pyconfig.py if necessary. Feel free to change it at any point later on, too.
+
+4. Run create_bot_schema.sql (in ./db/) using command line or MySQL Workbench.
+
+5. In this (root) directory: `cd db` then `npm install` (if first time running) then `nodemon api.js [env]` (every time you run bot).
+
+6. Finally run the bot: `python3 bot.py` in this (root) directory.
+
 ## Summon format
 `!activitystatsbot <username> ((upvotes subreddit) | ((comments|submissions) (awardcount|awardfreq|subreddit)))`
 
