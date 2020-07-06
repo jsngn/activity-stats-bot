@@ -11,89 +11,80 @@ from extractor import Extractor
 import time
 
 
-def run_bot():
+def run_bot(reddit, replied_ids):
     """ Gets 1000 comments in subreddit, checks whether bot is summoned, if yes then verify good formatting to display
-        stats or error message (as reply to comment with summon) """
+        stats or error message (as reply to comment with summon)
+        Takes params:
+        reddit: instance of praw.Reddit
+        replied_ids: dictionary of comment IDs recently confirmed that we've replied """
 
-    reddit = praw.Reddit(username=pyconfig.username, password=pyconfig.password, client_id=pyconfig.client_id,
-                         client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by jsngn on "
-                                                                          "GitHub")
-    print("PRAW Reddit instance ready.")
+    for comment in reddit.subreddit(pyconfig.subreddit).comments(limit=1000):
 
-    # Dictionary of comment IDs in the 1000 comments retrieved from subreddit that we know we've replied by sending GET
-    # to API. This means program won't repeatedly try to send get requests to API to confirm the same information we
-    # should already know
-    replied_ids = {}
+        if Statics.ERROR_KW not in comment.body and Statics.BOT_KW in comment.body:  # Bot summoned
+            print(f"{comment.id}: Bot summoned")
 
-    while True:  # Run until interrupted
+            if comment.id not in replied_ids:
+                print(f"{comment.id}: Querying database for ID")
+                reply_status = has_replied(comment.id)
 
-        for comment in reddit.subreddit(pyconfig.subreddit).comments(limit=1000):
+                if not reply_status:  # Don't repeatedly reply to a comment
+                    # Some sanitizing, put into array for easier reference later on
+                    comment_str = comment.body.strip()
+                    comment_arr = comment_str.split()
 
-            if Statics.ERROR_KW not in comment.body and Statics.BOT_KW in comment.body:  # Bot summoned
-                print(f"{comment.id}: Bot summoned")
-
-                if comment.id not in replied_ids:
-                    print(f"{comment.id}: Querying database for ID")
-                    reply_status = has_replied(comment.id)
-
-                    if not reply_status:  # Don't repeatedly reply to a comment
-                        # Some sanitizing, put into array for easier reference later on
-                        comment_str = comment.body.strip()
-                        comment_arr = comment_str.split()
-
-                        if len(comment_arr) != Statics.COMMENT_WORD_NO:
-                            reply_handler(comment, Statics.FORMAT_ERROR, replied_ids)
-                        else:
-                            try:
-                                reddit.redditor(comment_arr[1]).id  # Throws exception if non-existent user, we comment err
-
-                                extractor = Extractor(reddit, comment_arr[1])
-
-                                # Ensure good formatting e.g. one of 'upvotes', 'comments', 'submissions' must be present
-                                # or can't do 'upvotes awardcount'
-                                if comment_arr[2] in extractor.activity_action \
-                                        and comment_arr[3] in Statics.CORRESPOND_MODE[comment_arr[2]]:
-                                    results = extractor.extract(comment_arr[2], comment_arr[3])  # Dictionary returned
-
-                                    # Log and reply to summon (if applicable) then move onto next comment
-                                    if Statics.EXCEPTION_KW in results:
-                                        print(f"{comment.id}: Error extracting stats: {results[Statics.EXCEPTION_KW]}")
-
-                                        if type(results[Statics.EXCEPTION_KW]) is prawcore.exceptions.Forbidden:
-                                            reply_handler(comment, Statics.PRIVATE_ERROR, replied_ids)
-                                        continue
-
-                                    results = results[comment_arr[2] + "_" + comment_arr[3]]
-
-                                    # No exceptions thrown from extractor, proceed normally
-                                    # Sort so we only display highest stats
-                                    results_sorted = sorted(((value, key) for key, value in results.items()), reverse=True)
-
-                                    # Explanation of stats at start of comment & unit in stats dependent on activity & mode
-                                    cmt = format_comment(comment_arr[1], comment_arr[2], comment_arr[3])
-                                    unit = get_unit(comment_arr[2], comment_arr[3])
-
-                                    # Don't display too many subreddits/comments/submissions
-                                    i = 0
-                                    for count, item in results_sorted:
-                                        if i < pyconfig.stats_limit and i < len(results_sorted):
-                                            cmt += f"{item}: {count} {unit}\n\n"
-                                            i += 1
-                                        else:
-                                            break
-                                    reply_handler(comment, cmt, replied_ids)
-                                else:
-                                    reply_handler(comment, Statics.FORMAT_ERROR, replied_ids)
-                            except prawcore.exceptions.NotFound:
-                                reply_handler(comment, Statics.USERNAME_ERROR, replied_ids)
-                    elif reply_status == 1:
-                        replied_ids[comment.id] = None
-                        print(f"{comment.id}: Already replied to comment")
+                    if len(comment_arr) != Statics.COMMENT_WORD_NO:
+                        reply_handler(comment, Statics.FORMAT_ERROR, replied_ids)
                     else:
-                        print(f"{comment.id}: DB error (see log lines immediately above)")
+                        try:
+                            reddit.redditor(comment_arr[1]).id  # Throws exception if non-existent user, we comment err
+
+                            extractor = Extractor(reddit, comment_arr[1])
+
+                            # Ensure good formatting e.g. one of 'upvotes', 'comments', 'submissions' must be present
+                            # or can't do 'upvotes awardcount'
+                            if comment_arr[2] in extractor.activity_action \
+                                    and comment_arr[3] in Statics.CORRESPOND_MODE[comment_arr[2]]:
+                                results = extractor.extract(comment_arr[2], comment_arr[3])  # Dictionary returned
+
+                                # Log and reply to summon (if applicable) then move onto next comment
+                                if Statics.EXCEPTION_KW in results:
+                                    print(f"{comment.id}: Error extracting stats: {results[Statics.EXCEPTION_KW]}")
+
+                                    if type(results[Statics.EXCEPTION_KW]) is prawcore.exceptions.Forbidden:
+                                        reply_handler(comment, Statics.PRIVATE_ERROR, replied_ids)
+                                    continue
+
+                                results = results[comment_arr[2] + "_" + comment_arr[3]]
+
+                                # No exceptions thrown from extractor, proceed normally
+                                # Sort so we only display highest stats
+                                results_sorted = sorted(((value, key) for key, value in results.items()), reverse=True)
+
+                                # Explanation of stats at start of comment & unit in stats dependent on activity & mode
+                                cmt = format_comment(comment_arr[1], comment_arr[2], comment_arr[3])
+                                unit = get_unit(comment_arr[2], comment_arr[3])
+
+                                # Don't display too many subreddits/comments/submissions
+                                i = 0
+                                for count, item in results_sorted:
+                                    if i < pyconfig.stats_limit and i < len(results_sorted):
+                                        cmt += f"{item}: {count} {unit}\n\n"
+                                        i += 1
+                                    else:
+                                        break
+                                reply_handler(comment, cmt, replied_ids)
+                            else:
+                                reply_handler(comment, Statics.FORMAT_ERROR, replied_ids)
+                        except prawcore.exceptions.NotFound:
+                            reply_handler(comment, Statics.USERNAME_ERROR, replied_ids)
+                elif reply_status == 1:
+                    replied_ids[comment.id] = None
+                    print(f"{comment.id}: Already replied to comment")
                 else:
-                    print(f"{comment.id}: Already queried database for comment")
-        time.sleep(pyconfig.fetch_interval)
+                    print(f"{comment.id}: DB error (see log lines immediately above)")
+            else:
+                print(f"{comment.id}: Already queried database for comment")
+    time.sleep(pyconfig.fetch_interval)
 
 
 def has_replied(id):
@@ -190,4 +181,15 @@ def reply_handler(comment, reply, replied_ids):
 
 
 if __name__ == '__main__':
-    run_bot()
+    reddit = praw.Reddit(username=pyconfig.username, password=pyconfig.password, client_id=pyconfig.client_id,
+                         client_secret=pyconfig.client_secret, user_agent="Activity stats comment bot by jsngn on "
+                                                                          "GitHub")
+    print("PRAW Reddit instance ready.")
+
+    # Dictionary of comment IDs in the 1000 comments retrieved from subreddit that we know we've replied by sending GET
+    # to API. This means program won't repeatedly try to send get requests to API to confirm the same information we
+    # should already know
+    replied_ids = {}
+
+    while True:  # Run until interrupted
+        run_bot(reddit, replied_ids)
