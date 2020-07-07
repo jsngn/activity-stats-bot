@@ -48,7 +48,6 @@ def red(stt, cmt):
     red.subreddit.return_value.comments = MagicMock(return_value=cmt)
 
     red.redditor = MagicMock()
-    red.redditor.return_value.id = MagicMock()
 
     return sentinel.Reddit
 
@@ -56,16 +55,31 @@ def red(stt, cmt):
 @mock.patch("bot.requests.get")
 @mock.patch("bot.add_comment")
 def test_bot_integration(add_comment_mock, requests_get_mock, red, cmt):
-    replied_ids = {}
-
-    # First run; comment IDs don't exist in db
+    # Valid run where usernames exist, no comment IDs exist in db yet
+    ids = {}
+    red.redditor.return_value.id = MagicMock()
     res = Response()
     res._content = b'{"status": 200, "error": null, "response": [{"COUNT(*)": 0}]}'
     requests_get_mock.return_value = res
 
-    run_bot(red, replied_ids)
+    run_bot(red, ids)
 
-    # Assertions
-    assert red.subreddit.called
-    assert add_comment_mock.called
-    assert len(replied_ids) == len(cmt) - 1  # 1 comment that won't summon
+    assert len(ids) == add_comment_mock.call_count == len(cmt) - 1  # 1 comment that won't summon
+
+    # Valid run where usernames exist, comment IDs exist in db but not in dict
+    ids.clear()
+    res._content = b'{"status": 200, "error": null, "response": [{"COUNT(*)": 1}]}'
+
+    run_bot(red, ids)
+
+    assert len(ids) == len(cmt) - 1
+
+    # Valid run where usernames exist, DB returns error on GET request
+    ids.clear()
+    res._content = b'{"status": 500, "error": "some error", "response": null}'
+
+    run_bot(red, ids)
+
+    assert not ids
+
+

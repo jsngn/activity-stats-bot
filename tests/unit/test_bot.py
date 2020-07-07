@@ -17,28 +17,26 @@ def test_has_replied(requests_get_mock):
     res._content = b'{"status": 500, "error": "some error", "response": null}'
     requests_get_mock.return_value = res
     assert has_replied("123abc") == 2
-    assert requests_get_mock.called
 
     # Erroneous response from API, reflected in response message
     res = Response()
     res._content = b'{"status": 200, "error": null, "response": null}'
     requests_get_mock.return_value = res
     assert has_replied("123abc") == 2
-    assert requests_get_mock.called
 
     # Comment ID exists in db
     res = Response()
     res._content = b'{"status": 200, "error": null, "response": [{"COUNT(*)": 1}]}'
     requests_get_mock.return_value = res
     assert has_replied("123abc") == 1
-    assert requests_get_mock.called
 
     # Comment ID doesn't exist in db
     res = Response()
     res._content = b'{"status": 200, "error": null, "response": [{"COUNT(*)": 0}]}'
     requests_get_mock.return_value = res
     assert has_replied("123abc") == 0
-    assert requests_get_mock.called
+
+    assert requests_get_mock.call_count == 4
 
 
 @mock.patch("bot.requests")

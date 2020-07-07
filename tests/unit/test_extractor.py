@@ -81,9 +81,11 @@ def test_extractor_constructor(red, ext, usr):
 def test_get_calls(red, ext, lis):
     """ Test that all GET requests return expected value """
 
-    assert ext.get_upvotes_stats() is lis and red.get.called
-    assert ext.get_submissions_stats() is lis and red.get.called
-    assert ext.get_comments_stats() is lis and red.get.called
+    assert ext.get_upvotes_stats() is lis
+    assert ext.get_submissions_stats() is lis
+    assert ext.get_comments_stats() is lis
+
+    assert red.get.call_count == 3
 
 
 def test_get_from_list(red, ext, stt):
