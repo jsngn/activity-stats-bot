@@ -122,6 +122,9 @@ def test_bot_integration(add_comment_mock, requests_get_mock, red, cmt):
 
 
 def assertions_if_replied(cmt, add_comment_mock, ids, reply_call_count):
+    """ All assertions for the case where 3/4 comments fixtures are replied to (i.e. expected behavior since 1 comment
+        is meant to not summon bot) """
+
     assert len(ids) == len(cmt) - 1  # 1 comment won't summon
     assert add_comment_mock.call_count == (len(cmt) - 1) * reply_call_count
     for i in range(len(cmt) - 1):
