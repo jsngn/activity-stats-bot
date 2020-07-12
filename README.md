@@ -1,6 +1,8 @@
 # activity-stats-bot
 Activity stats bot for Reddit
 
+![Bot Screenshot](https://i.imgur.com/ydCDaTS.png)
+
 ## Description
 A summon-able bot that comments a user's upvote/comment/submission stats taken from their last 100 upvotes/comments/submissions.
 
